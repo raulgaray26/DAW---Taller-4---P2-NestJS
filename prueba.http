@@ -1,0 +1,23 @@
+### Obtener todas las fotos
+GET http://localhost:3000/api/fotos
+
+###
+
+### Obtener foto por ID numérico
+GET http://localhost:3000/api/fotos/9
+
+###
+
+### Probar error con ID de texto
+GET http://localhost:3000/api/fotos/abc
+
+###
+
+### Crear una nueva foto
+POST http://localhost:3000/api/fotos
+Content-Type: application/json
+
+{
+    "titulo": "Cerro",
+    "calificacion": 5
+}

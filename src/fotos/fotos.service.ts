@@ -1,39 +1,40 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import type { Foto } from './entities/foto.entity.js';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Foto } from './entities/foto.entity.js';
 
 @Injectable()
 export class FotosService {
-    private fotos: Foto[] = [
-        { id: 1, titulo: 'Atardecer', calificacion: 4.5 },
-        { id: 2, titulo: 'Malecon', calificacion: 4.0 },
-    ];
-    
-    findAll(): Foto[] {
-        return this.fotos;
+    constructor(
+        @InjectRepository(Foto)
+        private readonly fotosRepo: Repository<Foto>,
+    ) {}
+
+    findAll(): Promise<Foto[]> {
+        return this.fotosRepo.find({ order: { id: 'ASC' } });
     }
 
-    findOne(id: number): Foto {
-        const foto = this.fotos.find((f) => f.id === id);
+    async findOne(id: number): Promise<Foto> {
+        const foto = await this.fotosRepo.findOneBy({ id });
         if (!foto) {
             throw new NotFoundException(`Foto ${id} no encontrada`);
         }
         return foto;
     }
 
-    create(datos: Omit<Foto, 'id'>): Foto {
-        const nueva = { id: this.fotos.length + 1, ...datos };
-        this.fotos.push(nueva);
-        return nueva;
+    create(datos: Partial<Foto>): Promise<Foto> {
+        const foto = this.fotosRepo.create(datos);
+        return this.fotosRepo.save(foto);
     }
 
-    update(id: number, datos: Partial<Omit<Foto, 'id'>>): Foto {
-        const foto = this.findOne(id);
-        Object.assign(foto, datos);
-        return foto;
+    async update(id: number, datos: Partial<Omit<Foto, 'id'>>): Promise<Foto> {
+        const foto = await this.findOne(id);
+        Object.assign(foto, datos, { id });
+        return this.fotosRepo.save(foto);
     }
 
-    remove(id: number): void {
-        const foto = this.findOne(id);
-        this.fotos = this.fotos.filter((f) => f !== foto);
+    async remove(id: number): Promise<void> {
+        const foto = await this.findOne(id);
+        await this.fotosRepo.remove(foto);
     }
 }

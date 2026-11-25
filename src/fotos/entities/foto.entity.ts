@@ -1,6 +1,9 @@
 import { Column, CreateDateColumn, Entity,
-    PrimaryGeneratedColumn, UpdateDateColumn,
+    PrimaryGeneratedColumn, UpdateDateColumn, ManyToMany,
+    ManyToOne, JoinTable,
 } from 'typeorm';
+import { Album } from '../../albumes/entities/album.entity.js';
+import { Etiqueta } from './etiqueta.entity.js';
 
 @Entity('fotos')
 export class Foto {
@@ -27,4 +30,18 @@ export class Foto {
 
     @UpdateDateColumn()
     actualizadoEn: Date;
+
+    @ManyToOne(() => Album, (album) => album.fotos, {
+        onDelete: 'SET NULL',
+        nullable: true,
+    })
+    album: Album | null;
+
+    @ManyToMany(() => Etiqueta, (etiqueta) => etiqueta.fotos)
+    @JoinTable({
+        name: 'fotos_equipadas',
+        joinColumn: { name: 'foto_id' },
+        inverseJoinColumn: { name: 'etiqueta_id' },
+    })
+    etiquetas: Etiqueta[];
 }

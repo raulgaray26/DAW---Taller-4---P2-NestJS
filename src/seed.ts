@@ -8,7 +8,7 @@ import { Etiqueta } from './fotos/entities/etiqueta.entity.js';
 const app = await NestFactory.createApplicationContext(AppModule);
 const ds = app.get(DataSource);
 await ds.query(
-    'TRUNCATE fotos_etiquetas, fotos, etiquetas, albumes RESTART IDENTITY CASCADE',
+    'TRUNCATE fotos_equipadas, fotos, etiquetas, albumes RESTART IDENTITY CASCADE',
 );
 const albumes = await ds.getRepository(Album).save(
     ['Viajes', 'Guayaquil', 'Naturaleza'].map((nombre) => ({ nombre })),

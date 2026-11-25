@@ -15,8 +15,10 @@ export class FotosController {
         @Query('q') q: string | undefined,
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+        @Query('etiqueta') etiqueta: string | undefined,
+        @Query('orden') orden: string | undefined,
     ) { 
-        return this.fotosService.findAll({ min, max, q, page, limit });
+        return this.fotosService.findAll({ min, max, q, page, limit, etiqueta, orden });
     }
 
     @Get(':id')

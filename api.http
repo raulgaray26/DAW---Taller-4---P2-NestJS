@@ -1,0 +1,129 @@
+@api = http://localhost:3000/api
+
+### Listar fotos con filtros y paginación (200)
+GET {{api}}/fotos?min=3&max=5&q=foto&page=1&limit=5
+
+### Filtrar por etiqueta y ordenar por calificación (200)
+GET {{api}}/fotos?etiqueta=ciudad&orden=desc
+
+### Rechazar un límite mayor de 50 (400)
+GET {{api}}/fotos?limit=999
+
+### Rechazar un ID de texto (400)
+GET {{api}}/fotos/abc
+
+### Listar álbumes (200)
+GET {{api}}/albumes
+
+### Crear un álbum para las pruebas (201)
+# @name crearAlbum
+POST {{api}}/albumes
+Content-Type: application/json
+
+{
+  "nombre": "Álbum del taller"
+}
+
+### Repetir el nombre del álbum (409)
+POST {{api}}/albumes
+Content-Type: application/json
+
+{
+  "nombre": "Álbum del taller"
+}
+
+### Rechazar un nombre vacío (400)
+POST {{api}}/albumes
+Content-Type: application/json
+
+{
+  "nombre": ""
+}
+
+### Cambiar el nombre del álbum (200)
+PATCH {{api}}/albumes/{{crearAlbum.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "nombre": "Álbum del taller actualizado"
+}
+
+### Crear una foto con álbum y etiquetas (201)
+# @name crearFoto
+POST {{api}}/fotos
+Content-Type: application/json
+
+{
+  "titulo": "Cerro Santa Ana",
+  "calificacion": 4.8,
+  "ruta": "https://picsum.photos/id/1/600/400",
+  "albumId": {{crearAlbum.response.body.$.id}},
+  "etiquetas": ["Ciudad", "faro", " ciudad "]
+}
+
+### Consultar el álbum y sus fotos (200)
+GET {{api}}/albumes/{{crearAlbum.response.body.$.id}}/fotos
+
+### Rechazar campos inválidos y desconocidos (400)
+POST {{api}}/fotos
+Content-Type: application/json
+
+{
+  "titulo": "",
+  "calificacion": 9,
+  "ruta": "no-url",
+  "hack": 1
+}
+
+### Rechazar la referencia a un álbum inexistente (400)
+POST {{api}}/fotos
+Content-Type: application/json
+
+{
+  "titulo": "Álbum inexistente",
+  "calificacion": 4,
+  "ruta": "https://picsum.photos/id/1/600/400",
+  "albumId": 2147483647
+}
+
+### Cambiar solo la calificación (200)
+PATCH {{api}}/fotos/{{crearFoto.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "calificacion": 2.5
+}
+
+### Reemplazar las etiquetas (200)
+PATCH {{api}}/fotos/{{crearFoto.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "etiquetas": ["Ciudad", "noche"]
+}
+
+### Eliminar el álbum (204)
+DELETE {{api}}/albumes/{{crearAlbum.response.body.$.id}}
+
+### Verificar que la foto sigue existiendo con album = null (200)
+GET {{api}}/fotos/{{crearFoto.response.body.$.id}}
+
+### Consultar el álbum eliminado (404)
+GET {{api}}/albumes/{{crearAlbum.response.body.$.id}}/fotos
+
+### Eliminar la foto (204)
+DELETE {{api}}/fotos/{{crearFoto.response.body.$.id}}
+
+### Consultar la foto eliminada (404)
+GET {{api}}/fotos/{{crearFoto.response.body.$.id}}
+
+### Actualizar la foto eliminada (404)
+PATCH {{api}}/fotos/{{crearFoto.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "titulo": "No existe"
+}
+
+### Volver a eliminar la foto (404)
+DELETE {{api}}/fotos/{{crearFoto.response.body.$.id}}
